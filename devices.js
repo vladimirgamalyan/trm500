@@ -6,6 +6,11 @@ Vue.component('devices', {
         <div v-for="item in privateState.data" :key="item.id">
             {{ item.type }}
         </div>
+                
+        <div v-for="item in privateState.deviceData.parameters" :key="item.id">
+            <pre>{{ item.name }} {{ item.value }}</pre>
+        </div>
+        
         <div>
             <pre>{{ privateState.deviceData  }}</pre>
         </div>
