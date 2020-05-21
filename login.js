@@ -1,24 +1,52 @@
 
 Vue.component('login', {
     template: `
-     <div>
-       <form class="login" @submit.prevent="login">
-         <h1>Sign in</h1>
-         <label for="username">User name</label>
-         <input required id="username" v-model="privateState.username" type="text" />
-         <label for="password">Password</label>
-         <input required id="password" v-model="privateState.password" type="password" />
-         <button type="submit">Login</button>
-         <p>{{privateState.message}}</p>
-       </form>
-     </div>`,
+     <section class="hero is-fullheight is-light">
+        <div class="hero-body">
+            <div class="container">
+            
+            <div class="columns is-centered">
+            <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+            
+               <form class="box" @submit.prevent="login">
+                 <h1 class="title">Sign in</h1>
+                 
+                 <div class="field">
+                    <label class="label" for="username">User name</label>
+                    <div class="control">
+                        <input v-bind:disabled="privateState.loading" class="input" required id="username" v-model="privateState.username" type="text" />
+                    </div>
+                 </div>
+                 
+                 <div class="field">
+                    <label class="label" for="password">Password</label>
+                    <div class="control">
+                        <input v-bind:disabled="privateState.loading" class="input" required id="password" v-model="privateState.password" type="password" />
+                    </div>
+                 </div>
+                          
+                 <p class="content ">{{privateState.message}}</p>
+                 
+                 <button v-bind:disabled="privateState.loading" class="button is-info is-fullwidth" v-bind:class="{'is-loading': privateState.loading}" type="submit">Login</button>
+                 
+                 
+        
+               </form>
+               
+               </div>
+               </div>
+               
+           </div>
+       </div>
+     </section>`,
 
     data: function () {
         return {
             privateState: {
                 message: '',
                 username: 'ruslan4688@ya.ru',
-                password: 'scion065'
+                password: 'scion065',
+                loading: false
             },
             sharedState: store
         }
@@ -27,27 +55,16 @@ Vue.component('login', {
     methods: {
         login: function () {
             let vm = this;
+            vm.privateState.loading = true;
 
-            vm.message = 'please wait';
-            axios
-                .request({
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/x-www-form-urlencoded',
-                        'accept': '*/*'
-                    },
-                    url: '/v1/auth/open',
-                    data: {
-                        login: vm.privateState.username,
-                        password: vm.privateState.password
-                    }
-                })
+            api.open(vm.privateState.username, vm.privateState.password)
                 .then(function (response) {
-                    vm.privateState.message = response.data;
+                    vm.privateState.loading = false;
                     vm.sharedState.token = response.data.token;
-                    vm.sharedState.authorized = true;
                 })
                 .catch(function (error) {
+                    vm.privateState.loading = false;
+                    vm.sharedState.token = null;
                     if (error.response) {
                         console.log(error.response.data);
                         console.log(error.response.status);

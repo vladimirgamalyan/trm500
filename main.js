@@ -1,6 +1,5 @@
 var store = {
-    authorized: false,
-    token: ''
+    token: null
 };
 
 window.addEventListener('load', function () {
@@ -12,7 +11,7 @@ window.addEventListener('load', function () {
         data: store,
         template: `
             <div>
-                <div v-if="authorized">
+                <div v-if="token">
                   <devices></devices>
                 </div>
                 <div v-else>
