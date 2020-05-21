@@ -1,32 +1,20 @@
 
 Vue.component('devices', {
     template: `
-     <div>
-       Devices
-        <div v-for="item in privateState.data" :key="item.id">
-            {{ item.type }}
-        </div>
-        
-        <button v-on:click="setTemp(20)">20</button>
-        <button v-on:click="setTemp(30)">30</button>
-        <button v-on:click="setDiscrete(0)">OFF</button>
-        <button v-on:click="setDiscrete(1)">ON</button>
-        <button v-on:click="loadDevices">Refresh</button>
-                
-        <div v-for="item in privateState.deviceData.parameters" :key="item.id">
-            <pre>{{ item.id }}  {{ item.name }} {{ item.value }}</pre>
-        </div>
-        
         <div>
-            <pre>{{ privateState.deviceData  }}</pre>
-        </div>
-     </div>`,
+            <div class="section">   
+                <div class="columns">
+                    <oven v-for="item in privateState.devices" :key="item.id" v-bind:data="item"></oven>
+                </div>
+            </div>
+         </div>`,
 
     data: function () {
         return {
             privateState: {
                 data: [],
-                deviceData: {foo: 42}
+                deviceData: {foo: 42},
+                devices: []
             },
             sharedState: store
         }
@@ -37,26 +25,7 @@ Vue.component('devices', {
             console.log('set setDiscrete', value);
             let vm = this;
 
-            axios
-                .request({
-                    method: 'POST',
-                    headers: {
-                        'accept': '*/*',
-                        'Authorization': 'Bearer ' + vm.sharedState.token,
-                        'content-type': 'application/x-www-form-urlencoded',
-                    },
-                    url: '/v1/parameters/write-data',
-                    data: {
-                        "timeout":60,
-                        "sync":true,
-                        "data":[
-                            {
-                                "id": 4369461,
-                                "value": value.toString()
-                            }
-                        ]
-                    }
-                })
+            api.setDiscrete(value)
                 .then(function (response) {
                     //vm.privateState.data = response.data;
                     console.log(response.data);
@@ -76,38 +45,15 @@ Vue.component('devices', {
             console.log('set temp', temp);
             let vm = this;
 
-            axios
-                .request({
-                    method: 'POST',
-                    headers: {
-                        'accept': '*/*',
-                        'Authorization': 'Bearer ' + vm.sharedState.token,
-                        'content-type': 'application/x-www-form-urlencoded',
-                    },
-                    url: '/v1/parameters/write-data',
-                    data: {
-                        "timeout":60,
-                        "sync":true,
-                        "data":[
-                            {
-                                "id": 4369491,
-                                "value": temp.toString()
-                            }
-                        ]
-                    }
-                })
+            api.setTemp(temp)
                 .then(function (response) {
-                    //vm.privateState.data = response.data;
                     console.log(response.data);
-                    //vm.sharedState.authorized = true;
-
                     vm.loadDevices();
                 })
                 .catch(function (error) {
                     if (error.response) {
                         console.log(error.response.data);
                         console.log(error.response.status);
-                        //vm.privateState.message = error.response.data.message;
                     }
                 })
         },
@@ -115,31 +61,15 @@ Vue.component('devices', {
             console.log('load devices');
             let vm = this;
 
-            axios
-                .request({
-                    method: 'POST',
-                    headers: {
-                        'accept': '*/*',
-                        'Authorization': 'Bearer ' + vm.sharedState.token,
-                        'content-type': 'application/x-www-form-urlencoded',
-                    },
-                    url: '/v1/device/index',
-                    data: {
-
-                    }
-                })
+            api.loadDevices()
                 .then(function (response) {
                     vm.privateState.data = response.data;
-                    console.log(response.data);
-                    //vm.sharedState.authorized = true;
-
                     vm.loadDevice(response.data[0].id);
                 })
                 .catch(function (error) {
                     if (error.response) {
                         console.log(error.response.data);
                         console.log(error.response.status);
-                        //vm.privateState.message = error.response.data.message;
                     }
                 })
         },
@@ -148,40 +78,54 @@ Vue.component('devices', {
             console.log('load device');
             let vm = this;
 
-            axios
-                .request({
-                    method: 'POST',
-                    headers: {
-                        'accept': '*/*',
-                        'Authorization': 'Bearer ' + vm.sharedState.token,
-                        'content-type': 'application/x-www-form-urlencoded',
-                    },
-                    url: '/v1/device/' + id,
-                    data: []
-                })
+            return api.loadDevice(id)
                 .then(function (response) {
                     vm.privateState.deviceData = response.data;
-                    console.log(response.data);
-                    //vm.sharedState.authorized = true;
                 })
                 .catch(function (error) {
                     if (error.response) {
                         console.log(error.response.data);
                         console.log(error.response.status);
-                        //vm.privateState.message = error.response.data.message;
                     }
                 })
         }
     },
 
     created: function () {
-        console.log('devices ready');
         this.loadDevices();
+
+        let vm = this;
+
+        api.loadDevices()
+            .then(function (response) {
+                console.log(response.data);
+                vm.privateState.devices = _.chain(response.data)
+                    .filter(i => i.name.startsWith('test'))
+                    .map(i => _.pick(i, ['id', 'type', 'name']))
+                    .value();
+                //vm.privateState.devices.push(vm.privateState.devices[0]);
+                //vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+                // vm.privateState.devices.push(vm.privateState.devices[0]);
+
+
+                console.log(vm.privateState.devices);
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    console.log(error.response.status, error.response.data);
+                }
+            })
 
         // setInterval(function () {
         //     this.loadData();
         // }.bind(this), 5000);
     },
+
     beforeDestroy() {
         if (this.interval) {
             clearInterval(this.interval);
