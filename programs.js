@@ -2,7 +2,7 @@ var programs = [
     {
         'name': 'Лак',
         'temp': 180,
-        'time': 20 * 60
+        'time': 5
     },
     {
         'name': 'Цапонлак',
