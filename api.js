@@ -33,16 +33,16 @@ var api = {
         return this.req('/v1/device/' + id, []);
     },
 
-    writeData: function (id, value) {
+    writeDataBulk: function (data) {
+        console.log('writeDataBulk', data);
         return this.req('/v1/parameters/write-data', {
             "timeout": 60,
             "sync": true,
-            "data": [
-                {
-                    "id": id,
-                    "value": value
-                }
-            ]
+            "data": data
         });
+    },
+
+    writeData: function (id, value) {
+        return this.writeDataBulk([{id, value}])
     }
 };

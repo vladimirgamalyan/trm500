@@ -1,7 +1,7 @@
 var programs = [
     {
         'name': 'Лак',
-        'temp': 180,
+        'temp': 30,
         'time': 5
     },
     {
