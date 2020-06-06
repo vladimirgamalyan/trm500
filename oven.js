@@ -234,7 +234,7 @@ Vue.component('oven', {
                 },
                 'ready': function () {
                     if (vm.privateState.needToDisableAlarm) {
-                        if ((vm.privateState.disableAlarmStartTime + 30000 < Date.now()) || (vm.getParam('Текущее состояние дискретного входа') === '0')) {
+                        if (((vm.privateState.disableAlarmStartTime + 30000) < Date.now()) || (vm.getParam('Текущее состояние дискретного входа') === '0')) {
                             vm.privateState.needToDisableAlarm = false;
                             var d = [{
                                 name: 'Нижний порог сигнализации',
@@ -272,7 +272,7 @@ Vue.component('oven', {
                             vm.privateState.buttonEnabled.programButtons = true;
                             vm.privateState.state = 'ready';
                             vm.privateState.needToDisableAlarm = true;
-                            vm.privateState.disableAlarmStartTime = Data.now();
+                            vm.privateState.disableAlarmStartTime = Date.now();
                         })
                     }
                 }
