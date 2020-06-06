@@ -191,7 +191,7 @@ Vue.component('oven', {
                     value: mode.temp.toString()
                 }, {
                     name: 'Нижний порог сигнализации',
-                    value: '1000'
+                    value: '300'
                 }];
                 vm.setParamBulk(d).then(function () {
                     vm.privateState.state = 'preheat';
@@ -213,6 +213,7 @@ Vue.component('oven', {
                 vm.setParamBulk(d).then(function () {
                     vm.privateState.buttonEnabled.programButtons = true;
                     vm.privateState.state = 'ready';
+                    vm.privateState.currMode = null;
                 })
             }
         },
@@ -230,7 +231,7 @@ Vue.component('oven', {
                 },
                 'ready': function () {},
                 'preheat': function () {
-                    if (vm.getParam('Текущее состояние дискретного входа') === '0') {
+                    if (vm.getParam('Текущее состояние дискретного входа') === '1') {
                         var temp = parseFloat(vm.getParam('Текущее значение'));
                         if (!isNaN(temp)) {
                             //TODO: getCurrMode can return '-'
