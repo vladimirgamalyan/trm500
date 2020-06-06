@@ -31,6 +31,8 @@ Vue.component('oven', {
             sharedState: store,
             privateState: {
                 state: null,
+                needToDisableAlarm: false,
+                disableAlarmStartTime: 0,
                 deviceData: null,
                 currentTemperature: null,
                 parameters: {},
@@ -191,7 +193,7 @@ Vue.component('oven', {
                     value: mode.temp.toString()
                 }, {
                     name: 'Нижний порог сигнализации',
-                    value: '300'
+                    value: '0'
                 }];
                 vm.setParamBulk(d).then(function () {
                     vm.privateState.state = 'preheat';
@@ -214,6 +216,7 @@ Vue.component('oven', {
                     vm.privateState.buttonEnabled.programButtons = true;
                     vm.privateState.state = 'ready';
                     vm.privateState.currMode = null;
+                    vm.privateState.needToDisableAlarm = false;
                 })
             }
         },
@@ -229,7 +232,19 @@ Vue.component('oven', {
                         vm.privateState.state = 'ready';
                     });
                 },
-                'ready': function () {},
+                'ready': function () {
+                    if (vm.privateState.needToDisableAlarm) {
+                        if ((vm.privateState.disableAlarmStartTime + 30000 > Date.now()) || (vm.getParam('Текущее состояние дискретного входа') === '0')) {
+                            vm.privateState.needToDisableAlarm = false;
+                            var d = [{
+                                name: 'Нижний порог сигнализации',
+                                value: '0'
+                            }];
+                            //TODO: error
+                            vm.setParamBulk(d);
+                        }
+                    }
+                },
                 'preheat': function () {
                     if (vm.getParam('Текущее состояние дискретного входа') === '1') {
                         var temp = parseFloat(vm.getParam('Текущее значение'));
@@ -251,11 +266,13 @@ Vue.component('oven', {
                         vm.privateState.state = 'wait';
                         var d = [{
                             name: 'Нижний порог сигнализации',
-                            value: '0'
+                            value: '500'
                         }];
                         vm.setParamBulk(d).then(function () {
                             vm.privateState.buttonEnabled.programButtons = true;
                             vm.privateState.state = 'ready';
+                            vm.privateState.needToDisableAlarm = true;
+                            vm.privateState.disableAlarmStartTime = Data.now();
                         })
                     }
                 }

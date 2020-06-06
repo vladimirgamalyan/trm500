@@ -24,9 +24,10 @@ Vue.component('devices', {
         api.loadDevices()
             .then(function (response) {
                 vm.privateState.devices = _.chain(response.data)
-                    .filter(i => i.name.startsWith('test'))
+                    .filter(i => i.type.startsWith('ТРМ500-ВФ'))
                     .map(i => _.pick(i, ['id', 'type', 'name']))
                     .value();
+                //console.log(vm.privateState.devices);
             })
             .catch(function (error) {
                 if (error.response) {
