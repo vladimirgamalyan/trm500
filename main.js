@@ -3,9 +3,7 @@ var store = {
 };
 
 window.addEventListener('load', function () {
-
     axios.defaults.baseURL = 'https://api.owencloud.ru';
-
     new Vue({
         el: '#app',
         data: store,
